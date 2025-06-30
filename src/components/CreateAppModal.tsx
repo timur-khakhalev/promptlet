@@ -1,0 +1,154 @@
+import React, { useState, useEffect } from 'react';
+import { useAppContext, type MiniApp } from '../contexts/AppContext';
+import { X, Check } from 'lucide-react';
+
+interface CreateAppModalProps {
+  onClose: () => void;
+  editingApp?: MiniApp | null;
+}
+
+const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose, editingApp }) => {
+  const { addMiniApp, updateMiniApp } = useAppContext();
+  const [formData, setFormData] = useState({
+    name: '',
+    model: 'gemini-2.5-flash',
+    systemPrompt: ''
+  });
+
+  useEffect(() => {
+    if (editingApp) {
+      setFormData({
+        name: editingApp.name,
+        model: editingApp.model,
+        systemPrompt: editingApp.systemPrompt || '',
+      });
+    }
+  }, [editingApp]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+
+    if (editingApp) {
+      updateMiniApp({
+        ...editingApp,
+        name: formData.name.trim(),
+        model: formData.model,
+        systemPrompt: formData.systemPrompt.trim() || ''
+      });
+    } else {
+      addMiniApp({
+        name: formData.name.trim(),
+        model: formData.model,
+        systemPrompt: formData.systemPrompt.trim() || ''
+      });
+    }
+    
+    onClose();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
+
+  const models = [
+    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' }
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-600">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-50">
+              {editingApp ? 'Edit Mini-App' : 'Create Mini-App'}
+            </h3>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          
+          {/* Content */}
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter mini-app name..."
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50 placeholder-gray-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent"
+                autoFocus
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                Model
+              </label>
+              <select
+                value={formData.model}
+                onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent"
+              >
+                {models.map(model => (
+                  <option key={model.value} value={model.value}>
+                    {model.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                System Prompt
+              </label>
+              <textarea
+                value={formData.systemPrompt}
+                onChange={(e) => setFormData(prev => ({ ...prev, systemPrompt: e.target.value }))}
+                placeholder="Instructions for the AI model..."
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50 placeholder-gray-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent resize-none"
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-slate-600">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!formData.name.trim()}
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors rounded-lg flex items-center justify-center gap-2"
+            >
+              <Check size={16} />
+              {editingApp ? 'Update' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateAppModal;

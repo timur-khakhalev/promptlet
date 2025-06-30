@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Base theme styles */
+html {
+  /* Light theme by default */
+  color-scheme: light;
+  background-color: #f9fafb; /* gray-50 */
+  color: #1f2937; /* gray-800 */
+}
+
+html.dark {
+  /* Dark theme when class is applied */
+  color-scheme: dark;
+  background-color: #0f172a; /* slate-900 */
+  color: #e2e8f0; /* slate-200 */
+}
+
+/* Dark theme CSS custom properties for consistent colors */
+.dark {
+  /* Background colors - establish clear hierarchy */
+  --color-bg-primary: #0f172a;     /* slate-900 - main background */
+  --color-bg-secondary: #1e293b;   /* slate-800 - secondary containers */
+  --color-bg-tertiary: #334155;    /* slate-700 - elevated elements */
+  --color-bg-elevated: #475569;    /* slate-600 - highest elevation */
+  
+  /* Text colors */
+  --color-text-primary: #f8fafc;   /* slate-50 - primary text */
+  --color-text-secondary: #e2e8f0; /* slate-200 - secondary text */
+  --color-text-tertiary: #cbd5e1;  /* slate-300 - tertiary text */
+  --color-text-muted: #94a3b8;     /* slate-400 - muted text */
+  
+  /* Border colors */
+  --color-border-primary: #475569;  /* slate-600 - primary borders */
+  --color-border-secondary: #64748b; /* slate-500 - secondary borders */
+  
+  /* Accent colors - indigo variants for dark theme */
+  --color-accent-primary: #6366f1;   /* indigo-500 - primary accent */
+  --color-accent-secondary: #8b5cf6; /* purple-500 - secondary accent */
+  --color-accent-muted: #a5b4fc;     /* indigo-300 - muted accent */
+  
+  /* Interactive states */
+  --color-hover-bg: #475569;         /* slate-600 - hover background */
+  --color-active-bg: #334155;        /* slate-700 - active background */
+}
+
+/* Custom Scrollbar */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+.dark .overflow-y-auto {
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.4);
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.6);
+}
