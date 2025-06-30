@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
@@ -19,6 +19,15 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
   const [copiedResponse, setCopiedResponse] = useState(false);
 
   const activeMiniApp = state.miniApps.find(app => app.id === state.activeMiniAppId);
+
+  useEffect(() => {
+    setInput('');
+    setUserMessage('');
+    setResponse('');
+    setError(null);
+    setCopiedInput(false);
+    setCopiedResponse(false);
+  }, [state.activeMiniAppId]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -121,6 +130,8 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
       setIsLoading(false);
     }
   };
+
+
 
   if (!activeMiniApp) {
     return (
@@ -240,7 +251,19 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         {/* Error */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg">
-            {error}
+            <div className="flex items-center justify-between">
+              <span>{error}</span>
+              {userMessage && (
+                                 <button
+                   onClick={handleRegenerate}
+                   disabled={isLoading}
+                   className="ml-4 px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                 >
+                   <RefreshCw size={14} />
+                   Retry
+                 </button>
+              )}
+            </div>
           </div>
         )}
       </div>
