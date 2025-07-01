@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import { Send, Clipboard, RotateCcw, Check, RefreshCw, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Clipboard, Check, RefreshCw, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import MockupSelector from './dev/MockupSelector';
 import { type MockupScenario } from '../utils/mockupData';
 
