@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "highlight.js/styles/github.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -79,4 +80,113 @@ html.dark {
 
 .dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background-color: rgba(148, 163, 184, 0.6);
+}
+
+/* Markdown Tables */
+.prose table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid #d1d5db;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.prose th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+.dark .prose table {
+  border-color: #475569;
+}
+
+.dark .prose th,
+.dark .prose td {
+  border-color: #475569;
+}
+
+.dark .prose th {
+  background-color: #334155;
+}
+
+/* Dark mode syntax highlighting */
+.dark .hljs {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-literal,
+.dark .hljs-section,
+.dark .hljs-link {
+  color: #f472b6 !important;
+}
+
+.dark .hljs-string {
+  color: #10b981 !important;
+}
+
+.dark .hljs-title,
+.dark .hljs-name,
+.dark .hljs-type,
+.dark .hljs-attribute,
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-built_in,
+.dark .hljs-addition,
+.dark .hljs-variable,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable {
+  color: #60a5fa !important;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote,
+.dark .hljs-deletion,
+.dark .hljs-meta {
+  color: #94a3b8 !important;
+}
+
+.dark .hljs-number {
+  color: #fbbf24 !important;
+}
+
+/* Code blocks styling */
+.prose pre {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.dark .prose pre {
+  background-color: #1e293b;
+  border-color: #475569;
+}
+
+.prose code {
+  background-color: #f1f5f9;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.dark .prose code {
+  background-color: #334155;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
 }

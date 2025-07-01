@@ -45,8 +45,6 @@ const applyTheme = (theme: ThemeMode) => {
     html.classList.remove('dark');
   }
   
-  // Debug logging
-  console.log(`Theme applied: ${theme}, Dark mode: ${shouldBeDark}, System prefers dark: ${systemPrefersDark}`);
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

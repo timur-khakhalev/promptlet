@@ -74,16 +74,13 @@ const Sidebar = forwardRef<SidebarRef>((_, ref) => {
             {state.miniApps.map((app) => (
               <div
                 key={app.id}
-                className={`group rounded-lg border transition-all ${
+                onClick={() => handleAppClick(app.id)}
+                className={`group rounded-lg border transition-all cursor-pointer p-3 ${
                   state.activeMiniAppId === app.id
                     ? 'bg-indigo-50 dark:bg-slate-700 border-indigo-200 dark:border-slate-500'
                     : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700'
                 }`}
               >
-                <button
-                  onClick={() => handleAppClick(app.id)}
-                  className="w-full p-3 text-left"
-                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 dark:text-slate-50 truncate">
@@ -122,7 +119,6 @@ const Sidebar = forwardRef<SidebarRef>((_, ref) => {
                       </button>
                     </div>
                   </div>
-                </button>
               </div>
             ))}
           </div>

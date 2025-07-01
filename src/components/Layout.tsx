@@ -28,7 +28,7 @@ const Layout: React.FC = () => {
         <Sidebar ref={sidebarRef} />
         <div className="flex-1 flex flex-col min-w-0">
           <Header />
-          <div className="flex-1 bg-gray-50 dark:bg-slate-800">
+          <div className="flex-1 min-h-0 bg-gray-50 dark:bg-slate-800">
             <ChatView onCreateApp={handleCreateAppFromCenter} />
           </div>
         </div>

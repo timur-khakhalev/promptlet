@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
-import { Send, Clipboard, RotateCcw, Check, RefreshCw, Plus } from 'lucide-react';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import { Send, Clipboard, RotateCcw, Check, RefreshCw, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import MockupSelector from './dev/MockupSelector';
+import { type MockupScenario } from '../utils/mockupData';
 
 interface ChatViewProps {
   onCreateApp?: () => void;
@@ -17,6 +21,12 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
   const [error, setError] = useState<string | null>(null);
   const [copiedInput, setCopiedInput] = useState(false);
   const [copiedResponse, setCopiedResponse] = useState(false);
+  const [isUserMessageExpanded, setIsUserMessageExpanded] = useState(false);
+  const [showMockupSelector, setShowMockupSelector] = useState(false);
+  const [selectedMockup, setSelectedMockup] = useState<MockupScenario | null>(null);
+  const [hasReceivedResponse, setHasReceivedResponse] = useState(false);
+  
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const activeMiniApp = state.miniApps.find(app => app.id === state.activeMiniAppId);
 
@@ -27,10 +37,64 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
     setError(null);
     setCopiedInput(false);
     setCopiedResponse(false);
+    setIsUserMessageExpanded(false);
+    setHasReceivedResponse(false);
+    setSelectedMockup(null);
   }, [state.activeMiniAppId]);
+
+  // Auto-scroll to bottom when response changes
+  useEffect(() => {
+    if (chatContainerRef.current && (response || isLoading)) {
+      const container = chatContainerRef.current;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [response, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
+    
+    // Handle mockup mode
+    if (selectedMockup) {
+      setUserMessage(selectedMockup.userMessage);
+      setResponse('');
+      setError(null);
+      setInput('');
+      setHasReceivedResponse(true);
+      
+      if (selectedMockup.hasError) {
+        setError(selectedMockup.errorMessage || 'Mock error occurred');
+        return;
+      }
+      
+      if (selectedMockup.isLoading) {
+        setIsLoading(true);
+        // Simulate loading for demo purposes
+        setTimeout(() => {
+          setIsLoading(false);
+          setResponse('This is a simulated response after loading...');
+        }, 2000);
+        return;
+      }
+      
+      // Simulate typing effect for mockup
+      setIsLoading(true);
+      const fullResponse = selectedMockup.aiResponse;
+      let currentText = '';
+      const words = fullResponse.split(' ');
+      
+      for (let i = 0; i < words.length; i++) {
+        currentText += (i > 0 ? ' ' : '') + words[i];
+        setResponse(currentText);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      setIsLoading(false);
+      return;
+    }
+    
+    // Original API logic
     if (!activeMiniApp || !state.apiKey) {
       setError('API key or active mini-app not set.');
       return;
@@ -40,6 +104,7 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
     setError(null);
     setUserMessage(input);
     setResponse('');
+    setHasReceivedResponse(true);
     const currentInput = input;
     setInput('');
 
@@ -96,10 +161,40 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
     setUserMessage('');
     setResponse('');
     setError(null);
+    setIsUserMessageExpanded(false);
+    setHasReceivedResponse(false);
   };
 
   const handleRegenerate = async () => {
-    if (!userMessage || !activeMiniApp || !state.apiKey) return;
+    if (!userMessage) return;
+    
+    // Handle mockup mode
+    if (selectedMockup) {
+      setError(null);
+      setResponse('');
+      
+      if (selectedMockup.hasError) {
+        setError(selectedMockup.errorMessage || 'Mock error occurred');
+        return;
+      }
+      
+      // Simulate typing effect for mockup regeneration
+      setIsLoading(true);
+      const fullResponse = selectedMockup.aiResponse;
+      let currentText = '';
+      const words = fullResponse.split(' ');
+      
+      for (let i = 0; i < words.length; i++) {
+        currentText += (i > 0 ? ' ' : '') + words[i];
+        setResponse(currentText);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      setIsLoading(false);
+      return;
+    }
+    
+    // Original API logic
+    if (!activeMiniApp || !state.apiKey) return;
     
     setIsLoading(true);
     setError(null);
@@ -161,9 +256,9 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
   }
 
   return (
-    <main className="flex-1 flex flex-col p-6 max-w-4xl mx-auto w-full">
+    <main className="h-full flex flex-col p-6 max-w-4xl mx-auto w-full min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex-shrink-0 flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-50">
             {activeMiniApp.name}
@@ -175,19 +270,22 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
             </p>
           )}
         </div>
-        {(userMessage || response) && (
+        {hasReceivedResponse && (
           <button
             onClick={handleNewChat}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
           >
-            <RotateCcw size={16} />
-            New Chat
+            <Plus size={16} />
+            New Request
           </button>
         )}
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 space-y-6 overflow-y-auto mb-6 max-h-[60vh]">
+      <div 
+        ref={chatContainerRef}
+        className={`flex-1 min-h-0 space-y-6 overflow-y-auto ${hasReceivedResponse ? '' : 'mb-6'}`}
+      >
         {/* User Message */}
         {userMessage && (
           <div className="flex justify-end items-start gap-2">
@@ -200,9 +298,33 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
             </button>
             <div className="max-w-3xl bg-indigo-600 text-white rounded-2xl px-4 py-3">
               <div className="prose prose-invert max-w-none">
-                <ReactMarkdown>
-                  {userMessage}
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
+                  {userMessage.length > 140 && !isUserMessageExpanded 
+                    ? `${userMessage.slice(0, 140)}...`
+                    : userMessage
+                  }
                 </ReactMarkdown>
+                {userMessage.length > 140 && (
+                  <button
+                    onClick={() => setIsUserMessageExpanded(!isUserMessageExpanded)}
+                    className="flex items-center gap-1 mt-2 text-indigo-200 hover:text-white transition-colors text-sm"
+                  >
+                    {isUserMessageExpanded ? (
+                      <>
+                        <ChevronUp size={14} />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={14} />
+                        Show more
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -211,7 +333,7 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         {/* AI Response */}
         {(response || isLoading) && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3 max-h-96 overflow-y-auto">
+            <div className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3">
               {isLoading && !response && (
                 <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 dark:border-slate-500 border-t-transparent"></div>
@@ -220,7 +342,10 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
               )}
               {response && (
                 <div className="prose dark:prose-invert max-w-none">
-                  <ReactMarkdown>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                  >
                     {response}
                   </ReactMarkdown>
                 </div>
@@ -268,29 +393,46 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-gray-200 dark:border-slate-600 pt-4">
-        <div className="flex gap-3">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`Ask ${activeMiniApp.name} anything...`}
-            className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50 placeholder-gray-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent resize-none"
-            rows={3}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-            className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            <Send size={18} />
-          </button>
+      {/* Input Area - Only show when no response received */}
+      {!hasReceivedResponse && (
+        <div className="flex-shrink-0 border-t border-gray-200 dark:border-slate-600 pt-4">
+          <div className="flex gap-3">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Ask ${activeMiniApp.name} anything...`}
+              className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50 placeholder-gray-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent resize-none"
+              rows={3}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading}
+              className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <Send size={18} />
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
+            Press Cmd+Enter (Mac) or Ctrl+Enter (Windows) to send
+          </p>
+          {selectedMockup && (
+            <div className="mt-2 px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+              <p className="text-xs text-purple-800 dark:text-purple-200">
+                🎭 Mockup Mode: {selectedMockup.name}
+              </p>
+            </div>
+          )}
         </div>
-        <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
-          Press Cmd+Enter (Mac) or Ctrl+Enter (Windows) to send
-        </p>
-      </div>
+      )}
+      
+      {/* Development Mockup Selector */}
+      <MockupSelector
+        selectedMockup={selectedMockup}
+        onMockupSelect={setSelectedMockup}
+        isVisible={showMockupSelector}
+        onToggleVisibility={() => setShowMockupSelector(!showMockupSelector)}
+      />
     </main>
   );
 };

@@ -1,4 +1,5 @@
 ### **Tech Requirements: AI Prompt Playground**
+
 #### **2. Core Concept (The Elevator Pitch)**
 
 **Promptlet** is a browser-based, stateless web application for interacting with Google's Gemini models. It allows users to create, manage, and use custom "mini-apps"—pre-configured prompts for specific tasks like translation, code generation, or text summarization. All user data, including API keys and mini-app configurations, is stored exclusively in the user's browser, ensuring complete privacy and no server-side history.
@@ -66,35 +67,10 @@
 *   **Frontend Framework:** A modern JavaScript framework is recommended (e.g., React, Svelte, Vue).
 *   **Markdown:** A library like `react-markdown` (for React) or `marked` should be used to render the model's response.
 
-#### **6. Local Storage Data Structure (Example)**
-
-This is a suggested shape for the data stored in `localStorage`.
-
-```json
-{
-  "settings": {
-    "apiKey": "gsk_...", // Stored only if user gives consent, otherwise null
-    "theme": "dark" // Example of a future setting
-  },
-  "miniApps": [
-    {
-      "id": "c7a4a2b9-a2a4-4d8b-9d2a-4c28f6f5d84a",
-      "name": "Grammar Corrector",
-      "systemPrompt": "You are an expert proofreader. Correct any grammatical errors in the following text and provide a short explanation for each correction. Do not change the original meaning.",
-      "model": "gemini-1.5-flash-latest"
-    },
-    {
-      "id": "f8d3b1e0-b3e1-4c6e-8e3b-9d1a3c7b2e1f",
-      "name": "Code Explainer (Python)",
-      "systemPrompt": "You are a senior Python developer. Explain the following code snippet in a clear and concise way, suitable for a junior developer. Use markdown for code blocks.",
-      "model": "gemini-pro"
-    }
-  ]
-}
-```
-
 ### **6. Technology Stack**
 pnpm + vite + react + typescript
+
+package manager: pnpm
 
 The technology stack is selected to prioritize a fast user experience, rapid development, and maintainability, while strictly adhering to the client-side-only architecture. The foundation of this stack is **Vite**, a modern frontend build tool.
 
@@ -136,3 +112,6 @@ The choices below are guided by the following principles:
 This app should be deployed at Vercel
 
 
+# Rules
+
+* **Linting** After your changes, please run pnpm lint:ts to check lint errors, and if any, please fix them
