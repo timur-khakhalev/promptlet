@@ -1,6 +1,6 @@
 import React, { useState, type ReactNode } from 'react';
 import { Settings as SettingsIcon, Sparkles, Sun, Moon, Monitor } from 'lucide-react';
-import { useAppContext, type ThemeMode } from '../contexts/AppContext';
+import { useAppContext, type ThemeMode } from '../contexts/types';
 import Settings from './Settings';
 
 interface HeaderProps {

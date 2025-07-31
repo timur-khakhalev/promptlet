@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../contexts/types';
 import { X, Eye, EyeOff, ExternalLink } from 'lucide-react';
 
 interface SettingsProps {

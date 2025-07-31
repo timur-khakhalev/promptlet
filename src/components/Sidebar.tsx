@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
-import { useAppContext, type MiniApp } from '../contexts/AppContext'
+import { useAppContext, type MiniApp } from '../contexts/types'
 import { Plus, Edit, Trash2, X } from 'lucide-react'
 import CreateAppModal from './CreateAppModal'
 

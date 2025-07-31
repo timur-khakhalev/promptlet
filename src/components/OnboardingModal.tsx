@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../contexts/types';
 import { Sparkles, ExternalLink, ChevronRight, Check } from 'lucide-react';
 
 interface OnboardingModalProps {

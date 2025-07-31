@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAppContext, type MiniApp } from '../contexts/AppContext';
+import { useAppContext } from '../contexts/types';
+import { type MiniApp } from '../contexts/types';
 import { X, Check } from 'lucide-react';
 
 interface CreateAppModalProps {
@@ -25,8 +26,8 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose, editingApp }) 
     }
   }, [editingApp]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.name.trim()) return;
 
     if (editingApp) {
@@ -52,7 +53,7 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose, editingApp }) 
       onClose();
     } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit();
     }
   };
 

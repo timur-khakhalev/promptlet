@@ -1,57 +1,26 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-export type { MiniApp };
-
-interface MiniApp {
-  id: string;
-  name: string;
-  systemPrompt?: string;
-  model: string;
-}
-
-export type ThemeMode = 'light' | 'dark' | 'system';
-
-export interface AppState {
-  apiKey: string | null;
-  saveApiKey: boolean;
-  miniApps: MiniApp[];
-  activeMiniAppId: string | null;
-  theme: ThemeMode;
-}
-
-export interface AppContextProps {
-  state: AppState;
-  setApiKey: (apiKey: string | null, save?: boolean) => void;
-  addMiniApp: (miniApp: Omit<MiniApp, 'id'>) => string;
-  updateMiniApp: (miniApp: MiniApp) => void;
-  deleteMiniApp: (id: string) => void;
-  setActiveMiniAppId: (id: string | null) => void;
-  setTheme: (theme: ThemeMode) => void;
-}
-
-const AppContext = createContext<AppContextProps | undefined>(undefined);
-
-// Helper function to apply theme
-const applyTheme = (theme: ThemeMode) => {
-  const html = document.documentElement;
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  const shouldBeDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
-  
-  if (shouldBeDark) {
-    html.classList.add('dark');
-  } else {
-    html.classList.remove('dark');
-  }
-  
-};
+import { type MiniApp, type ThemeMode, type AppState, AppContext } from './types';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Helper function to apply theme
+  const applyTheme = (theme: ThemeMode) => {
+    const html = document.documentElement;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const shouldBeDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
+    
+    if (shouldBeDark) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  };
+
   const [state, setState] = useState<AppState>(() => {
     const savedState = localStorage.getItem('promptletState');
     
-    let initialState = {
+    let initialState: AppState = {
       apiKey: null,
       saveApiKey: true,
       miniApps: [],
@@ -70,13 +39,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Apply theme immediately on state initialization
   useEffect(() => {
     applyTheme(state.theme);
-  }, []); // Run only once on mount
+  }, [state.theme]); // Run only once on mount
 
   useEffect(() => {
     if (state.saveApiKey) {
       localStorage.setItem('promptletState', JSON.stringify(state));
     } else {
-      const { apiKey, ...stateWithoutApiKey } = state;
+      const { ...stateWithoutApiKey } = state;
+      // a bit of a hack to remove apiKey from the state that gets saved to localstorage
+      delete (stateWithoutApiKey as Partial<AppState>).apiKey;
       localStorage.setItem('promptletState', JSON.stringify(stateWithoutApiKey));
     }
   }, [state]);
@@ -152,12 +123,4 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {children}
     </AppContext.Provider>
   );
-};
-
-export const useAppContext = () => {
-  const context = React.useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useAppContext must be used within an AppProvider');
-  }
-  return context;
 };

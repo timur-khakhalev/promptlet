@@ -1,0 +1,4 @@
+
+> ai-stateless-chat@0.0.0 lint:ts /home/timur/dev/personal/promptlet
+> tsc --noEmit
+

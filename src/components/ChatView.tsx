@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../contexts/types';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import { Send, Clipboard, Check, RefreshCw, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Clipboard, Check, RefreshCw, Plus } from 'lucide-react';
 import MockupSelector from './dev/MockupSelector';
 import { type MockupScenario } from '../utils/mockupData';
 
@@ -21,7 +21,6 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
   const [error, setError] = useState<string | null>(null);
   const [copiedInput, setCopiedInput] = useState(false);
   const [copiedResponse, setCopiedResponse] = useState(false);
-  const [isUserMessageExpanded, setIsUserMessageExpanded] = useState(false);
   const [showMockupSelector, setShowMockupSelector] = useState(false);
   const [selectedMockup, setSelectedMockup] = useState<MockupScenario | null>(null);
   const [hasReceivedResponse, setHasReceivedResponse] = useState(false);
@@ -37,7 +36,6 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
     setError(null);
     setCopiedInput(false);
     setCopiedResponse(false);
-    setIsUserMessageExpanded(false);
     setHasReceivedResponse(false);
     setSelectedMockup(null);
   }, [state.activeMiniAppId]);
@@ -126,8 +124,12 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         fullText += chunkText;
         setResponse(fullText);
       }
-    } catch (e: any) {
-      setError(e?.message || 'An error occurred while fetching the response.');
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError('An error occurred while fetching the response.');
+      }
       console.error(e);
     } finally {
       setIsLoading(false);
@@ -161,7 +163,6 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
     setUserMessage('');
     setResponse('');
     setError(null);
-    setIsUserMessageExpanded(false);
     setHasReceivedResponse(false);
   };
 
@@ -218,10 +219,16 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         fullText += chunkText;
         setResponse(fullText);
       }
-    } catch (e: any) {
-      setError(e?.message || 'An error occurred while fetching the response.');
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      }
+      else {
+        setError('An error occurred while fetching the response.');
+      }
       console.error(e);
-    } finally {
+    }
+    finally {
       setIsLoading(false);
     }
   };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../contexts/types';
 import Header from './Header';
 import Sidebar, { type SidebarRef } from './Sidebar';
 import ChatView from './ChatView';
