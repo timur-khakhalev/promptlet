@@ -289,15 +289,14 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         {/* User Message */}
         {userMessage && (
           <div className="flex justify-end items-start gap-2">
-            <div className="max-w-full sm:max-w-3xl bg-indigo-600 text-white rounded-2xl px-4 py-3">
-              <div className="prose prose-invert max-w-none">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
-                >
-                  {userMessage}
-                </ReactMarkdown>
-              </div>
+            <div className="sm:max-w-3xl bg-indigo-600 text-white rounded-2xl px-4 py-3 min-w-0">
+              {/* Removed prose wrapper for simplicity to prevent rendering glitches */}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+              >
+                {userMessage}
+              </ReactMarkdown>
             </div>
              <button
               onClick={() => copyToClipboard(userMessage, 'input')}
@@ -311,8 +310,8 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
 
         {/* AI Response */}
         {(response || isLoading) && (
-          <div className="flex justify-start items-start gap-2">
-            <div className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3 min-w-0">
+          <div className="flex flex-col md:flex-row justify-start items-start gap-2">
+            <div className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3 min-w-0 w-full">
               {isLoading && !response && (
                 <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 dark:border-slate-500 border-t-transparent"></div>
@@ -333,7 +332,7 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
               )}
             </div>
             {response && (
-              <div className="flex flex-col gap-1 mt-1 flex-shrink-0">
+              <div className="flex flex-row md:flex-col gap-2 md:gap-1 flex-shrink-0">
                 <button
                   onClick={() => copyToClipboard(response, 'response')}
                   className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"

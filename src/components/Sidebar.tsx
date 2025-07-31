@@ -42,7 +42,7 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
   }
 
   return (
-    <aside className="w-full md:w-80 h-full bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-600 flex flex-col">
+    <aside className="w-80 h-full bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-600 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-slate-600">
         <div className="flex items-center justify-between mb-2">
@@ -55,15 +55,13 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
             >
               <Plus size={20} />
             </button>
-            {onClose && (
-              <button 
-                onClick={onClose} 
-                className="p-2 md:hidden rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
-                title="Close menu"
-              >
-                <X size={20} />
-              </button>
-            )}
+            <button 
+              onClick={onClose} 
+              className="p-2 md:hidden rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
+              title="Close menu"
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
         <p className="text-sm text-gray-600 dark:text-slate-400">

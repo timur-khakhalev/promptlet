@@ -26,9 +26,30 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl h-[85vh] max-h-[900px] min-h-[600px] bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-200 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-600 overflow-hidden flex relative">
-        <div className={`absolute z-20 top-0 left-0 h-full md:relative md:z-auto md:block ${isSidebarOpen ? 'block' : 'hidden'}`}>
+        
+        {/* Mobile Sidebar Overlay */}
+        <div 
+          className={`fixed inset-0 z-30 bg-black/60 md:hidden transition-opacity duration-300 ${
+            isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+
+        {/* Mobile Sidebar */}
+        <div
+          className={`fixed top-0 left-0 h-full z-40 md:hidden transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? 'transform-none' : '-translate-x-full'
+          }`}
+        >
           <Sidebar ref={sidebarRef} onClose={() => setSidebarOpen(false)} />
         </div>
+
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex md:flex-shrink-0">
+          <Sidebar ref={sidebarRef} />
+        </div>
+
         <div className="flex-1 flex flex-col min-w-0">
           <Header>
             <button
