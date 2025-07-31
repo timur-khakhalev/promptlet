@@ -2,6 +2,7 @@ import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useAppContext, type MiniApp } from '../contexts/types'
 import { Plus, Edit, Trash2, X } from 'lucide-react'
 import CreateAppModal from './CreateAppModal'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 export interface SidebarRef {
   openCreateModal: () => void
@@ -15,6 +16,7 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
   const { state, setActiveMiniAppId, deleteMiniApp } = useAppContext()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingApp, setEditingApp] = useState<MiniApp | null>(null)
+  const [appToDelete, setAppToDelete] = useState<MiniApp | null>(null)
 
   const openCreateModal = () => {
     setEditingApp(null)
@@ -30,10 +32,19 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
     openCreateModal,
   }))
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this mini-app?')) {
-      deleteMiniApp(id)
+  const handleDeleteRequest = (app: MiniApp) => {
+    setAppToDelete(app)
+  }
+
+  const confirmDelete = () => {
+    if (appToDelete) {
+      deleteMiniApp(appToDelete.id)
+      setAppToDelete(null)
     }
+  }
+
+  const cancelDelete = () => {
+    setAppToDelete(null)
   }
 
   const handleAppClick = (appId: string) => {
@@ -110,7 +121,7 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
                         </p>
                       )}
                     </div>
-                    <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 ml-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -124,7 +135,7 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDelete(app.id)
+                          handleDeleteRequest(app)
                         }}
                         className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400"
                         title="Delete mini-app"
@@ -143,6 +154,13 @@ const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
         <CreateAppModal
           onClose={() => setIsCreateModalOpen(false)}
           editingApp={editingApp}
+        />
+      )}
+
+      {appToDelete && (
+        <DeleteConfirmationModal
+          onClose={cancelDelete}
+          onConfirm={confirmDelete}
         />
       )}
     </aside>
