@@ -256,15 +256,15 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
   }
 
   return (
-    <main className="h-full flex flex-col p-6 max-w-4xl mx-auto w-full min-h-0">
+    <main className="h-full flex flex-col p-2 sm:p-6 max-w-4xl mx-auto w-full min-h-0">
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-50">
+      <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+        <div className="mb-2 sm:mb-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-slate-50 truncate">
             {activeMiniApp.name}
           </h2>
           {activeMiniApp.systemPrompt && (
-            <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
+            <p className="hidden md:block text-sm text-gray-600 dark:text-slate-400 mt-1 truncate">
               {activeMiniApp.systemPrompt.slice(0, 100)}
               {activeMiniApp.systemPrompt.length > 100 ? '...' : ''}
             </p>
@@ -273,7 +273,7 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
         {hasReceivedResponse && (
           <button
             onClick={handleNewChat}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors self-end sm:self-center"
           >
             <Plus size={16} />
             New Request
@@ -284,56 +284,35 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
       {/* Chat Area */}
       <div 
         ref={chatContainerRef}
-        className={`flex-1 min-h-0 space-y-6 overflow-y-auto ${hasReceivedResponse ? '' : 'mb-6'}`}
+        className="flex-1 min-h-0 space-y-4 overflow-y-auto p-2"
       >
         {/* User Message */}
         {userMessage && (
           <div className="flex justify-end items-start gap-2">
-            <button
-              onClick={() => copyToClipboard(userMessage, 'input')}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors mt-1"
-              title="Copy message"
-            >
-              {copiedInput ? <Check size={16} className="text-green-600" /> : <Clipboard size={16} />}
-            </button>
-            <div className="max-w-3xl bg-indigo-600 text-white rounded-2xl px-4 py-3">
+            <div className="max-w-full sm:max-w-3xl bg-indigo-600 text-white rounded-2xl px-4 py-3">
               <div className="prose prose-invert max-w-none">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
                 >
-                  {userMessage.length > 140 && !isUserMessageExpanded 
-                    ? `${userMessage.slice(0, 140)}...`
-                    : userMessage
-                  }
+                  {userMessage}
                 </ReactMarkdown>
-                {userMessage.length > 140 && (
-                  <button
-                    onClick={() => setIsUserMessageExpanded(!isUserMessageExpanded)}
-                    className="flex items-center gap-1 mt-2 text-indigo-200 hover:text-white transition-colors text-sm"
-                  >
-                    {isUserMessageExpanded ? (
-                      <>
-                        <ChevronUp size={14} />
-                        Show less
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown size={14} />
-                        Show more
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
             </div>
+             <button
+              onClick={() => copyToClipboard(userMessage, 'input')}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors mt-1 flex-shrink-0"
+              title="Copy message"
+            >
+              {copiedInput ? <Check size={16} className="text-green-600" /> : <Clipboard size={16} />}
+            </button>
           </div>
         )}
 
         {/* AI Response */}
         {(response || isLoading) && (
-          <div className="flex justify-start">
-            <div className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3">
+          <div className="flex justify-start items-start gap-2">
+            <div className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-2xl px-4 py-3 min-w-0">
               {isLoading && !response && (
                 <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 dark:border-slate-500 border-t-transparent"></div>
@@ -341,32 +320,34 @@ const ChatView: React.FC<ChatViewProps> = ({ onCreateApp }) => {
                 </div>
               )}
               {response && (
-                <div className="prose dark:prose-invert max-w-none">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeHighlight]}
-                  >
-                    {response}
-                  </ReactMarkdown>
+                <div className="overflow-x-auto">
+                  <div className="prose dark:prose-invert max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                    >
+                      {response}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
             {response && (
-              <div className="flex flex-col gap-1 ml-2 mt-1">
+              <div className="flex flex-col gap-1 mt-1 flex-shrink-0">
                 <button
                   onClick={() => copyToClipboard(response, 'response')}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 transition-colors"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
                   title="Copy response"
                 >
-                  {copiedResponse ? <Check size={12} className="text-green-600" /> : <Clipboard size={12} />}
+                  {copiedResponse ? <Check size={16} className="text-green-600" /> : <Clipboard size={16} />}
                 </button>
                 <button
                   onClick={handleRegenerate}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 disabled:opacity-50 transition-colors"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-50 transition-colors"
                   title="Regenerate response"
                 >
-                  <RefreshCw size={12} />
+                  <RefreshCw size={16} />
                 </button>
               </div>
             )}

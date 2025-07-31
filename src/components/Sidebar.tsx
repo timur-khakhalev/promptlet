@@ -1,13 +1,17 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useAppContext, type MiniApp } from '../contexts/AppContext'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2, X } from 'lucide-react'
 import CreateAppModal from './CreateAppModal'
 
 export interface SidebarRef {
   openCreateModal: () => void
 }
 
-const Sidebar = forwardRef<SidebarRef>((_, ref) => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onClose }, ref) => {
   const { state, setActiveMiniAppId, deleteMiniApp } = useAppContext()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingApp, setEditingApp] = useState<MiniApp | null>(null)
@@ -34,21 +38,33 @@ const Sidebar = forwardRef<SidebarRef>((_, ref) => {
 
   const handleAppClick = (appId: string) => {
     setActiveMiniAppId(appId)
+    if (onClose) onClose();
   }
 
   return (
-    <aside className="w-80 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-600 flex flex-col">
+    <aside className="w-full md:w-80 h-full bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-600 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-slate-600">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-50">Mini-Apps</h2>
-          <button 
-            onClick={openCreateModal} 
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
-            title="Create new mini-app"
-          >
-            <Plus size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={openCreateModal} 
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
+              title="Create new mini-app"
+            >
+              <Plus size={20} />
+            </button>
+            {onClose && (
+              <button 
+                onClick={onClose} 
+                className="p-2 md:hidden rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-slate-300"
+                title="Close menu"
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
         </div>
         <p className="text-sm text-gray-600 dark:text-slate-400">
           {state.miniApps.length} mini-app{state.miniApps.length !== 1 ? 's' : ''}
